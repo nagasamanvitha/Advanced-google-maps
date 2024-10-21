@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<title>Direction</title>
+<style>
+  #map {
+    height: 400px;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="bottom3">
+  <table id="t01">
+    <tr>
+      <td>Start Point</td>
+      <td><input id="start" value="Gagan Vihar, East Delhi, Delhi"></td>
+      <td><input type="checkbox" id="show">Route</td>
+    </tr>
+    <tr>
+      <td>End Point</td>
+      <td><input id="end" value="Preet Vihar, Delhi"></td>
+      <td>Rotation:<input id="loc" size="5" value=""></td>
+    </tr>
+    <tr>
+      <td>Drive Mode</td>
+      <td>
+        <input type="radio" id="drive" name="drive" value="DRIVING">Driving
+        <input type="radio" id="walking" name="drive" value="WALKING">Walking
+        <input type="radio" id="bicycle" name="drive" value="BICYCLING">Bicycle
+      </td>
+    </tr>
+    <tr>
+      <td>Directions</td>
+      <td><input id="msg" size="50"/></td>
+      <td><input type="button" id="submit" value="submit"></td>
+    </tr>
+  </table>
+</div>
+<div id="directionsPanel" style="visibility:hidden"></div>
+<div id="warnings-panel"></div>
+
+<script>
+var map;
+
+function initMap() {
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer;
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 12,
+    center: {lat: 28.644800, lng: 77.216721} // Centered around Delhi
+  });
+  directionsDisplay.setMap(map);
+
+  document.getElementById('submit').addEventListener('click', function() {
+    calculateAndDisplayRoute(directionsService, directionsDisplay);
+  });
+}
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+  var mode = document.querySelector('input[name="drive"]:checked').value;
+  directionsService.route({
+    origin: document.getElementById('start').value,
+    destination: document.getElementById('end').value,
+    travelMode: mode
+  }, function(response, status) {
+    if (status === 'OK') {
+      directionsDisplay.setDirections(response);
+    } else {
+      window.alert('Directions request failed due to ' + status);
+    }
+  });
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvWwj1w7vIvYJEWizQ5-sMBNIVWX3-juA&callback=initMap&v=weekly&solution_channel=GMP_CCS_customcontrols_v1" async
+defer></script>
+</body>
+</html>

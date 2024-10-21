@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+<style type="text/css">
+.labels {
+color: white;
+background-color: red;
+font-family: "Lucida Grande", "Arial", sans-serif;
+font-size: 10px;
+text-align: center;
+white-space: nowrap;
+}
+</style>
+</head>
+<script type="text/javascript">
+//variables
+var map;
+var lat = sessionStorage.getItem('pyrmontlat');
+var lng = sessionStorage.getItem('pyrmontlng');
+var address = sessionStorage.getItem('sessionaddress');
+var pyrmont;
+var address;
+var marker;
+var infoWindow;
+var markers = [];
+var placeslist;
+var setcolor='red';
+//initialize Map
+function initMap()
+{
+//lat=27;lng=77;
+pyrmont = {lat: parseFloat(lat), lng: parseFloat(lng)};
+map = new google.maps.Map(document.getElementById('map'),
+{
+center: pyrmont,
+zoom: 6
+});
+marker = new google.maps.Marker({
+map: map,
+draggable: true,
+position: {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+listofplaces();
+}
+//read xml file contains details of places
+function listofplaces()
+{
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET", "http://localhost:8081/mapproject/mapindia/datatemp.xml", true);
+xhttp.onreadystatechange = function ()
+{
+if (xhttp.readyState == 4 && xhttp.status == 200) {
+myfunction(xhttp);
+}
+};
+xhttp.send();
+}
+function myfunction(xml)
+{
+var xmlDoc = xml.responseXML;
+var placeslist = document.getElementById('places');
+placeslist.innerHTML = "";
+r = xmlDoc.getElementsByTagName('attraction');
+x = xmlDoc.getElementsByTagName('street');
+lat = xmlDoc.getElementsByTagName('latitude');
+lng = xmlDoc.getElementsByTagName('longitude');
+imageurl = xmlDoc.getElementsByTagName('imageUrl');
+desc = xmlDoc.getElementsByTagName('description');
+var tstreet, tlat, tlng, tdesc, timg;
+for (i = 0; i < r.length; i++)
+{
+tstreet = x[i].childNodes[0].nodeValue;
+tlat = lat[i].childNodes[0].nodeValue;
+tlng = lng[i].childNodes[0].nodeValue;
+tdesc = desc[i].childNodes[0].nodeValue;
+timg = imageurl[i].childNodes[0].nodeValue;
+//match label and display image with address entered at home page e.g if (TAJMAHAL==TAJMAHAL)
+text1 = address.toUpperCase().replace(' ', ''); //eleminate spaces and convert to upper case.
+text2 = tstreet.toUpperCase().replace(' ', ''); //eleminate spaces and convert to upper case for data/key from xml.
+var num = text1.indexOf(text2); // num is 0 if word is found
+if (num == 0)
+{
+placeslist.innerHTML +=
+"<img height=200 width=200 src='http://localhost:8081/mapproject/mapindia/" + timg + "'/>" +
+"</br></br> Latitude :" + tlat +
+"</br> Longitude :" + tlng +
+"</br></br>" + tdesc;
+createmarkers(tstreet, timg, tlat, tlng);
+}
+//show all places/images on map if found.
+}
+}
+function pin(color)
+{
+return {
+path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+fillColor: color,
+fillOpacity: 1,
+strokeColor: '#000',
+strokeWeight: 2,
+anchor: new google.maps.Point(-1, -1),
+scale: .7
+};
+}
+function createmarkers(tstreet, timg, tlat, tlng)
+{
+var tshow = document.getElementById('show').checked;
+var tsize = document.getElementById('size').checked;
+var pic;
+if (tshow)
+{
+pic = document.createElement('img');
+pic.src = "./mapindia/" + timg;
+if (tsize) {
+pic.height = 100;
+pic.width = 100;
+} else {
+pic.height = 50;
+pic.width = 50;
+}
+} else
+pic = tstreet;
+marker.setMap(null);
+marker = new MarkerWithLabel({
+map: map,
+position: {lat: parseFloat(tlat), lng: parseFloat(tlng)},
+labelContent: pic,
+// labelAnchor: new google.maps.Point(12, 0),
+labelClass: "labels",
+labelStyle: {opacity: 0.90},
+icon:pin(setcolor)
+});
+}
+function fn_col(col)
+{
+setcolor=col.defaultValue;
+}
+</script>
+<body>
+<div id='map'>Loading..</div>
+<div id='heading'>About Place</div>
+<div id='subheading'>(Description)</div>
+<div id='right-window' style="width:300px; height:420px;margin-left: 76%;top:-100%;background:red;color:white">
+<div id='places' style="width:300px;height: 400px;overflow:auto;background:blue;color:white"> Details </div>
+Show Images <input type="checkbox" id="show" onclick="listofplaces()"/> Resize Image <input type="checkbox" id="size" onclick="listofplaces()"/>
+</div>
+<div id='bottom-window' style="height:50px">
+Select Marker Colors. (Click on Show Images to see the Effect)</br>
+<input type="radio" value="red" name="marker" id="red" onclick="fn_col(this)"/>Red
+<input type="radio" value="Yellow" name="marker" id="red" onclick="fn_col(this)"/>Yellow
+<input type="radio" value="Green" name="marker" id="red" onclick="fn_col(this)"/>Green
+<input type="radio" value="Blue" name="marker" id="red" onclick="fn_col(this)"/>Blue
+<input type="radio" value="orange" name="marker" id="red" onclick="fn_col(this)"/>Orange
+<input type="radio" value="Black" name="marker" id="red" onclick="fn_col(this)"/>Black
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsJ8vVyCoHrvZuGxuhcwhlDEZtevVyoo8&callback=initMap&libraries=geometry"></script>
+<script type="text/javascript" src="MarkerWithLabel.js"></script>
+<script src="myjavascript.js" type=text/javascript></script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+</head>
+<script type="text/javascript">
+//variables
+var map;
+var lat = sessionStorage.getItem('pyrmontlat');
+var lng = sessionStorage.getItem('pyrmontlng');
+var pyrmont;
+var address;
+var marker;
+var infoWindow;
+var markers = [];
+var scountry, sstate;
+var title;
+var pos, str;
+var xhttp = new XMLHttpRequest();
+var country = [];
+var state = [];
+var infowindow;
+//initialize Map
+function initMap()
+{
+//lat=27;lng=77;
+fn_country();
+fn_state();
+pyrmont = {lat: parseFloat(lat), lng: parseFloat(lng)};
+infowindow = new google.maps.InfoWindow();
+map = new google.maps.Map(document.getElementById('map'),
+{
+center: pyrmont,
+zoom: 10
+});
+marker = new google.maps.Marker({
+map: map,
+draggable: true,
+position: {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+}
+//get list of states/city with country
+function fn_state()
+{
+var vcountry = document.getElementById('country').value;
+//one need to register with the site to get the list of country and states the output will be xml format
+xhttp.open("GET", "http://api.geonames.org/search?country=" + vcountry + "&username=devganajay0705&mode=xml", true);
+xhttp.onreadystatechange = function ()
+{
+if (xhttp.readyState == 4 && xhttp.status == 200)
+{
+myfunction(xhttp);
+}
+};
+xhttp.send();
+// initMap();
+}
+function myfunction(xml)
+{
+state = [];
+var xmlDoc = xml.responseXML;
+for (i = 0; i < xmlDoc.getElementsByTagName('name').length; i++)
+{
+name = xmlDoc.getElementsByTagName("name")[i].childNodes[0].nodeValue;
+lat = xmlDoc.getElementsByTagName("lat")[i].childNodes[0].nodeValue;
+lng = xmlDoc.getElementsByTagName("lng")[i].childNodes[0].nodeValue;
+var city = [];
+city[0] = name;
+city[1] = lat;
+city[2] = lng;
+state.push(city);
+}
+fn_statedata();
+}
+//fill options of states based on country selected.
+function fn_statedata()
+{
+sstate = document.getElementById('state');
+while (sstate.length)
+sstate.remove(0);
+for (var i = 0, l = state.length; i < l; i++)
+{
+sstate.options.add(new Option(state[i, i], state[i, i]));
+}
+}
+function fn_mark1()
+{
+str = document.getElementById('state').value;
+pos = str.split(',');
+fn_weather('msg', '', parseFloat(pos[1]), parseFloat(pos[2]));
+}
+function fn_mark2()
+{
+fn_weathershow();
+marker.setMap(null);
+/*
+marker = new google.maps.Marker({
+map: map,
+title: title,
+position: {lat: parseFloat(pos[1]), lng: parseFloat(pos[2])},
+icon: pin('red')});
+*/
+var pic = document.createElement('img');
+if (title.indexOf('clear sky')>0) pic.src="./images/sun.png";
+if (title.indexOf('clouds')>0) pic.src="./images/cloud.png" ;
+if (title.indexOf('rain')>0) pic.src="./images/rain.png";
+pic.width=50;pic.height=50;
+marker = new MarkerWithLabel({
+map: map,
+position: {lat: parseFloat(pos[1]), lng: parseFloat(pos[2])},
+labelContent: pic,
+labelStyle: {opacity: 1},
+labelClass: "labels",
+icon: pin('red')
+});
+map.setCenter({lat: parseFloat(pos[1]), lng: parseFloat(pos[2])});
+marker.addListener('click', function () {
+infowindow.setContent(pos[0] + title);
+infowindow.open(map, marker);
+});
+//auto click event
+new google.maps.event.trigger(marker, 'click');
+map.setZoom(5);
+}
+function fn_weathershow()
+{
+var cells = document.getElementsByTagName('td');
+var title1 = title2 = title3 = title4 = " ";
+var ooptions = document.getElementsByName('rep');
+if (ooptions[0].checked)
+title1 = "Temperature:" + cells[5].innerHTML;
+if (ooptions[1].checked)
+title2 = "Clouds:" + cells[6].innerHTML;
+if (ooptions[2].checked)
+title3 = "Weather:" + cells[7].innerHTML;
+if (ooptions[3].checked)
+title4 = "Wind:" + cells[8].innerHTML;
+//alert(title1+title2+title3+title4);
+title = "</br>" + title1 + "</br>" + title2 + "</br>" + title3 + "</br>" + title4;
+//marker.setMap(map);
+}
+function pin(color)
+{
+return {
+path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+fillColor: color,
+fillOpacity: .6,
+strokeColor: '#000',
+strokeWeight: 1,
+// anchor: new google.maps.Point(-1, -1),
+scale: 5
+};
+}
+function fn_list()
+{
+for (i = 0; i < sstate.length; i++)
+{
+}
+}
+//fill list of country name to options.
+function fn_country()
+{
+country = [
+'AD', 'Andorra',
+'AE', 'United Arab Emirates',
+'AF', 'Afghanistan',
+'AG', 'Antigua and Barbuda',
+'AI', 'Anguilla',
+'AL', 'Albania',
+'AM', 'Armenia',
+'AO', 'Angola',
+'AQ', 'Antarctica',
+'AR', 'Argentina',
+'AS', 'American Samoa',
+'AT', 'Austria',
+'AU', 'Australia',
+'AW', 'Aruba',
+'AX', 'Ã…land',
+'AZ', 'Azerbaijan',
+'BA', 'Bosnia and Herzegovina',
+'BB', 'Barbados',
+'BD', 'Bangladesh',
+'BE', 'Belgium',
+'BF', 'Burkina Faso',
+'BG', 'Bulgaria',
+'BH', 'Bahrain',
+'BI', 'Burundi',
+'BJ', 'Benin',
+'BL', 'Saint BarthÃ©lemy',
+'BM', 'Bermuda',
+'BN', 'Brunei',
+'BO', 'Bolivia',
+'BQ', 'Bonaire',
+'BR', 'Brazil',
+'BS', 'Bahamas',
+'BT', 'Bhutan',
+'BV', 'Bouvet Island',
+'BW', 'Botswana',
+'BY', 'Belarus',
+'BZ', 'Belize',
+'CA', 'Canada',
+'CC', 'Cocos [Keeling] Islands',
+'CD', 'Democratic Republic of the Congo',
+'CF', 'Central African Republic',
+'CG', 'Republic of the Congo',
+'CH', 'Switzerland',
+'CI', 'Ivory Coast',
+'CK', 'Cook Islands',
+'CL', 'Chile',
+'CM', 'Cameroon',
+'CN', 'China',
+'CO', 'Colombia',
+'CR', 'Costa Rica',
+'CU', 'Cuba',
+'CV', 'Cape Verde',
+'CW', 'Curacao',
+'CX', 'Christmas Island',
+'CY', 'Cyprus',
+'CZ', 'Czech Republic',
+'DE', 'Germany',
+'DJ', 'Djibouti',
+'DK', 'Denmark',
+'DM', 'Dominica',
+'DO', 'Dominican Republic',
+'DZ', 'Algeria',
+'EC', 'Ecuador',
+'EE', 'Estonia',
+'EG', 'Egypt',
+'EH', 'Western Sahara',
+'ER', 'Eritrea',
+'ES', 'Spain',
+'ET', 'Ethiopia',
+'FI', 'Finland',
+'FJ', 'Fiji',
+'FK', 'Falkland Islands',
+'FM', 'Micronesia',
+'FO', 'Faroe Islands',
+'FR', 'France',
+'GA', 'Gabon',
+'GB', 'United Kingdom',
+'GD', 'Grenada',
+'GE', 'Georgia',
+'GF', 'French Guiana',
+'GG', 'Guernsey',
+'GH', 'Ghana',
+'GI', 'Gibraltar',
+'GL', 'Greenland',
+'GM', 'Gambia',
+'GN', 'Guinea',
+'GP', 'Guadeloupe',
+'GQ', 'Equatorial Guinea',
+'GR', 'Greece',
+'GS', 'South Georgia and the South Sandwich Islands',
+'GT', 'Guatemala',
+'GU', 'Guam',
+'GW', 'Guinea-Bissau',
+'GY', 'Guyana',
+'HK', 'Hong Kong',
+'HM', 'Heard Island and McDonald Islands',
+'HN', 'Honduras',
+'HR', 'Croatia',
+'HT', 'Haiti',
+'HU', 'Hungary',
+'ID', 'Indonesia',
+'IE', 'Ireland',
+'IL', 'Israel',
+'IM', 'Isle of Man',
+'IN', 'India',
+'IO', 'British Indian Ocean Territory',
+'IQ', 'Iraq',
+'IR', 'Iran',
+'IS', 'Iceland',
+'IT', 'Italy',
+'JE', 'Jersey',
+'JM', 'Jamaica',
+'JO', 'Jordan',
+'JP', 'Japan',
+'KE', 'Kenya',
+'KG', 'Kyrgyzstan',
+'KH', 'Cambodia',
+'KI', 'Kiribati',
+'KM', 'Comoros',
+'KN', 'Saint Kitts and Nevis',
+'KP', 'North Korea',
+'KR', 'South Korea',
+'KW', 'Kuwait',
+'KY', 'Cayman Islands',
+'KZ', 'Kazakhstan',
+'LA', 'Laos',
+'LB', 'Lebanon',
+'LC', 'Saint Lucia',
+'LI', 'Liechtenstein',
+'LK', 'Sri Lanka',
+'LR', 'Liberia',
+'LS', 'Lesotho',
+'LT', 'Lithuania',
+'LU', 'Luxembourg',
+'LV', 'Latvia',
+'LY', 'Libya',
+'MA', 'Morocco',
+'MC', 'Monaco',
+'MD', 'Moldova',
+'ME', 'Montenegro',
+'MF', 'Saint Martin',
+'MG', 'Madagascar',
+'MH', 'Marshall Islands',
+'MK', 'Macedonia',
+'ML', 'Mali',
+'MM', 'Myanmar [Burma]',
+'MN', 'Mongolia',
+'MO', 'Macao',
+'MP', 'Northern Mariana Islands',
+'MQ', 'Martinique',
+'MR', 'Mauritania',
+'MS', 'Montserrat',
+'MT', 'Malta',
+'MU', 'Mauritius',
+'MV', 'Maldives',
+'MW', 'Malawi',
+'MX', 'Mexico',
+'MY', 'Malaysia',
+'MZ', 'Mozambique',
+'NA', 'Namibia',
+'NC', 'New Caledonia',
+'NE', 'Niger',
+'NF', 'Norfolk Island',
+'NG', 'Nigeria',
+'NI', 'Nicaragua',
+'NL', 'Netherlands',
+'NO', 'Norway',
+'NP', 'Nepal',
+'NR', 'Nauru',
+'NU', 'Niue',
+'NZ', 'New Zealand',
+'OM', 'Oman',
+'PA', 'Panama',
+'PE', 'Peru',
+'PF', 'French Polynesia',
+'PG', 'Papua New Guinea',
+'PH', 'Philippines',
+'PK', 'Pakistan',
+'PL', 'Poland',
+'PM', 'Saint Pierre and Miquelon',
+'PN', 'Pitcairn Islands',
+'PR', 'Puerto Rico',
+'PS', 'Palestine',
+'PT', 'Portugal',
+'PW', 'Palau',
+'PY', 'Paraguay',
+'QA', 'Qatar',
+'RE', 'RÃ©union',
+'RO', 'Romania',
+'RS', 'Serbia',
+'RU', 'Russia',
+'RW', 'Rwanda',
+'SA', 'Saudi Arabia',
+'SB', 'Solomon Islands',
+'SC', 'Seychelles',
+'SD', 'Sudan',
+'SE', 'Sweden',
+'SG', 'Singapore',
+'SH', 'Saint Helena',
+'SI', 'Slovenia',
+'SJ', 'Svalbard and Jan Mayen',
+'SK', 'Slovakia',
+'SL', 'Sierra Leone',
+'SM', 'San Marino',
+'SN', 'Senegal',
+'SO', 'Somalia',
+'SR', 'Suriname',
+'SS', 'South Sudan',
+'ST', 'SÃ£o TomÃ© and PrÃ­ncipe',
+'SV', 'El Salvador',
+'SX', 'Sint Maarten',
+'SY', 'Syria',
+'SZ', 'Swaziland',
+'TC', 'Turks and Caicos Islands',
+'TD', 'Chad',
+'TF', 'French Southern Territories',
+'TG', 'Togo',
+'TH', 'Thailand',
+'TJ', 'Tajikistan',
+'TK', 'Tokelau',
+'TL', 'East Timor',
+'TM', 'Turkmenistan',
+'TN', 'Tunisia',
+'TO', 'Tonga',
+'TR', 'Turkey',
+'TT', 'Trinidad and Tobago',
+'TV', 'Tuvalu',
+'TW', 'Taiwan',
+'TZ', 'Tanzania',
+'UA', 'Ukraine',
+'UG', 'Uganda',
+'UM', 'U.S. Minor Outlying Islands',
+'US', 'United States',
+'UY', 'Uruguay',
+'UZ', 'Uzbekistan',
+'VA', 'Vatican City',
+'VC', 'Saint Vincent and the Grenadines',
+'VE', 'Venezuela',
+'VG', 'British Virgin Islands',
+'VI', 'U.S. Virgin Islands',
+'VN', 'Vietnam',
+'VU', 'Vanuatu',
+'WF', 'Wallis and Futuna',
+'WS', 'Samoa',
+'XK', 'Kosovo',
+'YE', 'Yemen',
+'YT', 'Mayotte',
+'ZA', 'South Africa',
+'ZM', 'Zambia',
+'ZW', 'Zimbabwe'];
+scountry = document.getElementById('country');
+for (var i = 0, l = country.length; i < l; i++)
+{
+// scountry.options.add(new Option(country[i,i],country[i,i]));
+var opt = document.createElement('option');
+var cname = country[i] + " ( " + country[i + 1] + " )";
+opt.innerHTML = cname;
+opt.value = country[i];
+scountry.appendChild(opt);
+i++;
+}
+}
+</script>
+<body>
+<div id='map'>Loading..</div>
+<div id='heading'>World Map</div>
+<div id='subheading'>(Know states within country)</div>
+<div id='right-window' style='margin-left: 84%'>
+Select Options</br></br>
+<input type="checkbox" name="rep" id="temp" value="temp" >Temperature</br><br>
+<input type="checkbox" name="rep" id="clouds_name" value="wind" >Clouds</br><br>
+<input type="checkbox" name="rep" id="weather_number" value="clouds" >Weather</br><br>
+<input type="checkbox" name="rep" id="speed_name" value="weather">Wind</br><br>
+</div>
+<div id='bottom-window' style="height:100px">
+Select Country and States and plot on Map
+<table>
+<tr><td>Country</td><td><select id="country" onchange="fn_state()"></select></td></tr>
+<tr><td>State</td> <td><select id="state" onchange="fn_mark1();" ></select></td></tr>
+<tr><td colspan='2'><input type="button" value='Submit' onclick="fn_mark2();" ></td></tr>
+</table>
+<div id="weather" hidden/>
+<div id='list'/>
+</div>
+</body>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsJ8vVyCoHrvZuGxuhcwhlDEZtevVyoo8&callback=initMap" > </script>
+<script type="text/javascript" src="MarkerWithLabel.js"></script>
+<script src="myjavascript.js" type=text/javascript></script>
+</html>

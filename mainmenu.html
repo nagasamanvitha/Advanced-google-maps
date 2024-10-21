@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+<script language="Javascript" type="text/javascript">
+var localh = 'localhost';
+function myfn(scr)
+{
+file = "http://" + localh + ":8081/mapproject";
+// add options
+if (scr == 'home')
+document.getElementById("area").data = file + '/map_direction.html';
+if (scr == 'map_arial')
+document.getElementById("area").data = file + '/map_arial.html';
+if (scr == 'map_satellite')
+document.getElementById("area").data = file + '/map_satellite.html';
+if (scr == 'map_video')
+document.getElementById("area").data = file + '/map_video.html';
+if (scr == 'map_image')
+document.getElementById("area").data = file + '/map_image.html';
+if (scr == 'map_description')
+document.getElementById("area").data = file + '/map_description.html';
+if (scr == 'map_world')
+document.getElementById("area").data = file + '/map_world.html';
+if (scr == 'map_weather')
+document.getElementById("area").data = file + '/map_weather.html';
+if (scr == 'map_nearby')
+document.getElementById("area").data = file + '/map_nearby.html';
+if (scr == 'mapdirection')
+document.getElementById("area").data = file + '/mapdirection.html';
+//end of options
+}
+</script>
+</head>
+<body>
+<div id="mainmenu" >
+<object id="area" type="text/html" data='http://'+localh+':8081/mapproject/mainmenu.html' ; >
+</object>
+</div>
+<div id="options-bar">
+<input type="Button" value="Home" onclick=myfn(src:home) />
+<input type="Button" value="Arial View" onclick=myfn('map_arial') />
+<input type="Button" value="Satellite View" onclick=myfn(src : map_satellite) />
+<input type="Button" value="Video" onclick='map_video' />
+<input type="Button" value="Images" onclick=myfn('map_image') ) />
+<input type="Button" value="Description" onclick=myfn('map_description') />
+<input type="Button" value="World Map" onclick=myfn('map_world') />
+<input type="Button" value="Weather" onclick=myfn('map_weather') />
+<input type="Button" value="NearBy Place" onclick=myfn('map_nearby') />
+<input type="Button" value="Direction" onclick=myfn(src,:map_direction) />
+</div>
+</body>
+</html>

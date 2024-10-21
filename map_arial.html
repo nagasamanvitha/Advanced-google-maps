@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsJ8vVyCoHrvZuGxuhcwhlDEZtevVyoo8&callback=initMap&libraries=geometry" async defer></script>
+<script src="myjavascript.js" type=text/javascript></script>
+</head>
+<script type="text/javascript">
+//variables
+var map;
+var lat=sessionStorage.getItem('pyrmontlat');
+var lng=sessionStorage.getItem('pyrmontlng');
+var pyrmont;
+var address =sessionStorage.getItem('sessionaddress');
+var marker,markerp,marker1;
+var infoWindow;
+var markers =[];
+function know_location()
+{
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(function (p)
+{
+document.getElementById('dist').value=calculatedistance(pyrmont.lat,pyrmont.lng,p.coords.latitude,p.coords.longitude);
+markerp = new google.maps.Marker({
+map: map1,
+icon: {url:"./images/present.png"},
+draggable: true,
+position : {lat: p.coords.latitude, lng:p.coords.longitude}
+});
+var bounds = new google.maps.LatLngBounds();
+var a1 = new google.maps.LatLng(p.coords.latitude, p.coords.longitude);
+var a2 = new google.maps.LatLng(parseFloat(lat), parseFloat(lng));
+bounds.extend(a1);
+bounds.extend(a2);
+map1.fitBounds(bounds);
+});
+map1.setZoom(10);
+}
+}
+//initialize Map
+function initMap()
+{
+//lat=27;lng=77;
+pyrmont = {lat: parseFloat(lat), lng: parseFloat(lng)};
+map = new google.maps.Map(document.getElementById('map'),
+{
+center: pyrmont,
+zoom: 20
+});
+map1 = new google.maps.Map(document.getElementById('map1'),
+{
+center: pyrmont,
+zoom: 10
+});
+marker = new google.maps.Marker({
+map: map,
+draggable: true,
+position : {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+marker1 = new google.maps.Marker({
+map: map1,
+draggable: true,
+position : {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+animation();
+know_location();
+//update session address .
+document.getElementById('address').value=address;
+document.getElementById('myloc').value=sessionStorage.getItem('sessionmyloc');
+}
+</script>
+<body>
+<div id='map'>Loading..</div>
+<div id='map1'>Loading..</div>
+<div id='heading'>Arial View</div>
+<div id='subheading'>(Distance)</div>
+<div id='bottom-window' style="height:80px;">
+Distance from <input id='address' type="text" value="" size="50" style="background:brown;color:white" readonly/> to My Location <input id='myloc' type="text" value="" size="50" style="background:brown;color:white" readonly/>
+is <input id='dist' type="text" value="" size="5" style="background:brown;color:white" readonly/> KM.
+<p id="msg"></p>
+</div>
+</body>
+</html>

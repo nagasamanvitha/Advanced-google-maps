@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsJ8vVyCoHrvZuGxuhcwhlDEZtevVyoo8&callback=initMap&libraries=places" async defer></script>
+<script src="myjavascript.js" type=text/javascript></script>
+</head>
+<script type="text/javascript">
+//variables
+var map;
+var lat = sessionStorage.getItem('pyrmontlat');
+var lng = sessionStorage.getItem('pyrmontlng');
+var pyrmont;
+var address;
+var marker;
+var infowindow;
+var markers = [];
+var geocoder;
+
+
+function know_position(){
+    if (navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(function (p) {
+          marker2=new google.maps.Marker({
+            map: map,
+            icon: {url:"https://static.vecteezy.com/system/resources/previews/000/279/511/original/location-pin-map-pin-flat-icon-vector-design.jpg", scaledSize:new google.maps.Size(30,40) },
+            position : {lat: p.coords.latitude, lng:p.coords.longitude}
+           
+          });
+        
+        
+        });
+    }
+}
+
+function initMap()
+{
+lat=27;lng=77;
+pyrmont = {lat: parseFloat(lat), lng: parseFloat(lng)};
+geocoder = new google.maps.Geocoder();
+infowindow = new google.maps.InfoWindow();
+map = new google.maps.Map(document.getElementById('map'),
+{ mapTypeId: google.maps.MapTypeId.SATELLITE,
+center: pyrmont,
+zoom: 20
+});
+
+
+
+marker = new google.maps.Marker({
+map: map,
+draggable: true,
+position : {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+}
+
+
+marker.addListener('drag', function(event)
+{
+document.getElementById('lat').value = event.latLng.lat();
+document.getElementById('lng').value = event.latLng.lng();
+});
+//events on marker - 2.drag END event once the drag is over and mouse/click is removed, update lat/lng
+marker.addListener('dragend', function(event)
+{
+document.getElementById('lat').value = event.latLng.lat();
+document.getElementById('lng').value = event.latLng.lng();
+fn_view(geocoder,map,infowindow);
+});
+//reverse geocoding - display location based on lat/lng saved.
+
+
+function fn_view(geocoder, map, infowindow)
+{
+var latlng={lat:parseFloat(document.getElementById('lat').value),lng:parseFloat(document.getElementById('lng').value)};
+geocoder.geocode({'location':latlng}, function (results, status)
+{
+if (status === google.maps.GeocoderStatus.OK)
+{ if (results[1])
+{
+infowindow.setContent("<table><tr><th>Place Name</th></tr><tr><td>"+results[1].formatted_address+"</td></tr></table>");
+infowindow.open(map, marker);
+//add list of last places visited.
+add_list('list',results[1].formatted_address);
+} else {
+window.alert('Error' + status);
+}
+}
+});
+add_list('list',results[1].formatted_address);
+}
+
+
+
+function calculatedistance(s1,s2,e1,e2)
+{
+  var latlngA=new google.maps.LatLng(s1,s2);
+  var latlngB=new google.maps.LatLng(e1,e2);
+
+  var dist=google.maps.geometry.spherical.computeDistanceBetween (latlngA,latlngB);
+  document.getElementById("dist").value=(dist/1000).toFixed(2);
+}
+function updateloc(loc)
+{
+  pyrmont = {lat:loc.lat(), lng:loc.lng()};
+  document.getElementById('lat').value=pyrmont.lat;
+  document.getElementById('lng').value=pyrmont.lng;
+  calculatedistance(pyrmont.lat,pyrmont.lng,marker2.getPosition().lat(),marker2.getPosition().lng());
+}
+
+</script>
+<body>
+<div id='map'>Loading..</div>
+<div id='heading'>Know Places of World</div>
+<div id='subheading'>Main Menu</div>
+<div id='right-window'>Zoom Options<br><br><br>
+<input type="radio" id="world" name="zoom" value="world" onclick="fn_zoom(this)">World<br><br>
+<input type="radio" id="continent" name="zoom" value="continent" onclick="fn_zoom(this)">Continent<br><br>
+<input type="radio" id="city" name="zoom" value="city" onclick="fn_zoom(this)">City<br><br>
+<input type="radio" id="streets" name="zoom" value="streets" onclick="fn_zoom(this)">Streets<br><br>
+<input type="radio" id="building" name="zoom" value="building" onclick="fn_zoom(this)">Building<br><br>
+
+Latitude:<input type="text" id="lat" value="" readonly></br></br>
+Longitude:<input type="text" id="lng" value="" readonly></br></br>
+
+
+</div>
+<div id='bottom-window'>
+<table id="t01">
+  <tr><td>Enter Place</td><td><input id="address" type="textbox" value="taj mahal,agra" size="30"></td></tr>
+  
+  <tr><td colspan="2">My Location:<input id="loc" type="textbox" value="">  Distance(KM) :<input id="dist" type="textbox" value="" size="10"></td><tr>
+  
+</table>
+
+
+</div>
+</body>
+</html>

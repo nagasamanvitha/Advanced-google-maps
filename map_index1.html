@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsJ8vVyCoHrvZuGxuhcwhlDEZtevVyoo8&callback=initMap&libraries=geometry" async defer></script>
+<script src="myjavascript.js" type=text/javascript></script>
+</head>
+<script type="text/javascript">
+//variables
+var map;
+var lat = sessionStorage.getItem('pyrmontlat');
+var lng = sessionStorage.getItem('pyrmontlng');
+var pyrmont;
+var address;
+var marker;
+var infowindow;
+var markers = [];
+
+
+function know_location(){
+    if (navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(function (p) {
+          //var LatLng = new google.maps.LatLng(p.coords.latitude, p.coords.longitude);
+            document.getElementById('lat').value=p.coords.latitude;
+            document.getElementById('lng').value=p.coords.longitude;
+        
+        
+        });
+    }
+}
+
+function initMap()
+{
+know_location();
+pyrmont = {lat: parseFloat(document.getElementById('lat').value), lng: parseFloat(document.getElementById('lng').value)};
+geocoder = new google.maps.Geocoder();
+infowindow = new google.maps.InfoWindow();
+map = new google.maps.Map(document.getElementById('map'),
+{ mapTypeId: google.maps.MapTypeId.SATELLITE,
+center: pyrmont,
+zoom: 10
+});
+marker = new google.maps.Marker({
+map: map,
+draggable: true,
+position : {lat: parseFloat(lat), lng: parseFloat(lng)}
+});
+}
+
+</script>
+<body>
+<div id='map'>Loading..</div>
+<div id='heading'>know place of world</div>
+<div id='subheading'>Main Menu</div>
+<div id='right-window'>Options</div>
+<div id='bottom-window'>Enter location
+<table>
+    <tr><td><input id="lat"/><input id="lng"/></td></tr>
+</table>
+
+
+
+</div>
+</body>
+</html>
